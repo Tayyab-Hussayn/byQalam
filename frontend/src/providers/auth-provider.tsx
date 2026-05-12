@@ -22,6 +22,8 @@ async function clearSessionCookie() {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
+    if (!supabase) return;
+
     let active = true;
 
     const loadSession = async () => {
@@ -38,7 +40,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     void loadSession();
 
-    const { data: subscription } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const token = session?.access_token ?? null;
       setAccessToken(token);
       if (token) {
@@ -50,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       active = false;
-      subscription.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
 
