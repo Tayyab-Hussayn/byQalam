@@ -15,7 +15,7 @@ export default function LoginClient({ nextPath }: { nextPath: string }) {
   const canSubmit = useMemo(() => Boolean(email.trim() && password.trim()), [email, password]);
 
   async function handleSignIn() {
-    if (!canSubmit || loading) return;
+    if (!canSubmit || loading || !supabase) return;
     setLoading("signin");
     setMessage(null);
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -37,7 +37,7 @@ export default function LoginClient({ nextPath }: { nextPath: string }) {
   }
 
   async function handleSignUp() {
-    if (!canSubmit || loading) return;
+    if (!canSubmit || loading || !supabase) return;
     setLoading("signup");
     setMessage(null);
     const { data, error } = await supabase.auth.signUp({
