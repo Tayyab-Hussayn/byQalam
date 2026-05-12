@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Qalam — The AI That Writes LinkedIn Posts in Your Voice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+:root{
+--gold:#C9871F;
+--gold-light:#E8A835;
+--gold-pale:#FDE5A0;
+--gold-bg:#FEF9EE;
+--teal:#0D4A45;
+--teal-light:#156860;
+--teal-bg:#EAF4F3;
+--white:#ffffff;
+--off:#F8F9FB;
+--ink:#0F172A;
+--ink2:#334155;
+--ink3:#64748B;
+--border:#E2E8F0;
+--border2:#CBD5E1;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:var(--white);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* NAVIGATION */
+nav{position:fixed;top:0;left:0;right:0;z-index:900;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;background:rgba(255,255,255,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);transition:all .3s}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-wordmark{font-size:1.25rem;font-weight:800;color:var(--teal);letter-spacing:-0.02em}
+.nav-wordmark span{color:var(--gold)}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none}
+.nav-links a{color:var(--ink2);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{display:flex;align-items:center;gap:10px}
+.btn-login{background:transparent;border:none;color:var(--ink2);font-size:.875rem;font-weight:500;cursor:pointer;text-decoration:none;padding:8px 16px;border-radius:8px;transition:all .2s}
+.btn-login:hover{background:var(--off);color:var(--ink)}
+.btn-signup{background:var(--teal);border:none;color:#fff;padding:10px 20px;border-radius:8px;font-size:.875rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .25s;letter-spacing:.01em}
+.btn-signup:hover{background:var(--teal-light);transform:translateY(-1px);box-shadow:0 6px 20px rgba(13,74,69,.25)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 5% 80px;position:relative;text-align:center;isolation:isolate;overflow:hidden;background:linear-gradient(135deg,rgba(255,255,255,.96) 0%,rgba(234,244,243,.92) 100%)}
+.hero::before{content:'';position:fixed;inset:0;z-index:-2;background:radial-gradient(circle at 15% 18%,rgba(201,135,31,.06),transparent 25%),radial-gradient(circle at 82% 5%,rgba(13,74,69,.05),transparent 25%);pointer-events:none}
+.hero-ambient{position:absolute;inset:0;z-index:-1;opacity:.9;background:radial-gradient(circle at 20% 20%,rgba(21,104,96,.16),transparent 30%),radial-gradient(circle at 80% 10%,rgba(13,74,69,.12),transparent 30%),radial-gradient(circle at 50% 80%,rgba(201,135,31,.1),transparent 28%);background-size:140% 140%;animation:meshMove 18s linear infinite}
+@keyframes meshMove{0%{background-position:0% 0%}50%{background-position:100% 40%}100%{background-position:0% 100%}}
+
+.hero-badge{display:inline-flex;align-items:center;gap:10px;background:var(--teal);padding:10px 20px;border-radius:100px;margin-bottom:32px;cursor:pointer;transition:all .2s;border:1.5px solid rgba(255,255,255,.15)}
+.hero-badge:hover{background:#1e293b;transform:translateY(-1px)}
+.hero-badge-label{background:var(--gold);color:var(--ink);font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:100px;letter-spacing:.06em;text-transform:uppercase}
+.hero-badge-text{color:rgba(255,255,255,.9);font-size:.82rem;font-weight:500}
+.hero-badge-arrow{color:var(--gold);font-size:.8rem;font-weight:600}
+
+.hero h1{font-size:clamp(2.8rem,6vw,5.2rem);font-weight:800;line-height:1.05;letter-spacing:-.03em;color:var(--ink);margin-bottom:12px;max-width:900px}
+.hero h1 .accent{color:var(--teal);position:relative}
+.hero h1 .accent::after{content:'';position:absolute;bottom:4px;left:0;right:0;height:8px;background:var(--gold-pale);z-index:-1;opacity:.6;border-radius:2px}
+
+.hero-sub{font-family:'Cormorant Garamond',serif;font-size:clamp(1.15rem,2.2vw,1.6rem);font-style:italic;color:var(--ink3);margin-bottom:28px;font-weight:400;max-width:600px;line-height:1.5}
+
+.hero-chips{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:36px}
+.hero-chip{display:inline-flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border2);border-radius:100px;padding:8px 18px;font-size:.78rem;font-weight:600;color:var(--ink2);letter-spacing:.01em;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.hero-chip-dot{width:7px;height:7px;border-radius:50%;background:var(--teal)}
+
+.hero-actions{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.btn-hero-main{background:var(--teal);color:#fff;padding:18px 40px;border-radius:10px;font-size:1.05rem;font-weight:700;text-decoration:none;cursor:pointer;border:none;transition:all .25s;letter-spacing:.01em;display:inline-flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(13,74,69,.2)}
+.btn-hero-main:hover{background:var(--teal-light);transform:translateY(-2px);box-shadow:0 12px 32px rgba(13,74,69,.3)}
+.btn-hero-main::after{content:'→';font-size:1.1rem;transition:transform .2s}
+.btn-hero-main:hover::after{transform:translateX(4px)}
+.btn-hero-ghost{background:var(--white);color:var(--ink2);padding:16px 32px;border-radius:10px;font-size:1rem;font-weight:600;text-decoration:none;cursor:pointer;border:1.5px solid var(--border2);transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-hero-ghost:hover{border-color:var(--teal);color:var(--teal);transform:translateY(-1px)}
+.hero-note{font-size:.82rem;color:var(--ink3);max-width:500px;line-height:1.6}
+
+/* Hero Visual */
+.hero-visual{margin-top:72px;width:100%;max-width:1000px;position:relative}
+.hero-visual-bg{background:linear-gradient(135deg,var(--teal) 0%,#0a3d38 100%);border-radius:24px;padding:48px 40px 0;position:relative;overflow:hidden;box-shadow:0 24px 64px rgba(13,74,69,.25)}
+.hero-visual-bg::before{content:'';position:absolute;top:-80px;right:-60px;width:320px;height:320px;border-radius:50%;background:rgba(201,135,31,.12)}
+.hero-visual-bg::after{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,rgba(13,74,69,.4))}
+
+.product-mock{background:#fff;border-radius:16px 16px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,.2);overflow:hidden;transform:perspective(1200px) rotateX(3deg);transform-origin:bottom center}
+.mock-topbar{background:#F1F5F9;padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #E2E8F0}
+.mock-dots{display:flex;gap:6px}
+.mock-dot{width:10px;height:10px;border-radius:50%}
+.mock-dot:nth-child(1){background:#FF5F57}
+.mock-dot:nth-child(2){background:#FEBC2E}
+.mock-dot:nth-child(3){background:#28C840}
+.mock-url{flex:1;background:#fff;border-radius:6px;padding:6px 14px;font-size:.72rem;color:#94A3B8;text-align:center;border:1px solid #E2E8F0;font-family:'JetBrains Mono',monospace}
+
+.mock-body{display:grid;grid-template-columns:190px 1fr;min-height:340px}
+.mock-sidebar{background:#FAFAFA;border-right:1px solid #E2E8F0;padding:20px 12px}
+.mock-nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:.78rem;font-weight:500;color:#64748B;margin-bottom:4px;cursor:pointer;transition:all .2s}
+.mock-nav-item.active{background:var(--teal);color:#fff;font-weight:600}
+.mock-nav-item svg{width:15px;height:15px;flex-shrink:0}
+.mock-main{padding:24px;display:flex;flex-direction:column;gap:16px}
+
+.mock-compose{background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:18px}
+.mock-compose-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.mock-compose-label::before{content:'◆';font-size:.5rem}
+.mock-compose-text{font-size:.84rem;color:#334155;line-height:1.7;min-height:90px}
+.mock-cursor{display:inline-block;width:2px;height:14px;background:var(--teal);margin-left:2px;vertical-align:middle;animation:blink 1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.mock-meta{display:flex;align-items:center;gap:12px;margin-top:10px;font-size:.72rem}
+.mock-meta-item{display:flex;align-items:center;gap:4px;color:#10B981;font-weight:700}
+.mock-meta-item.warn{color:#F59E0B}
+
+.mock-chips{display:flex;gap:8px;flex-wrap:wrap}
+.mock-chip{background:#fff;border:1.5px solid #E2E8F0;border-radius:8px;padding:6px 14px;font-size:.75rem;font-weight:600;color:#475569;cursor:pointer;transition:all .2s}
+.mock-chip:hover{border-color:var(--teal);color:var(--teal)}
+.mock-chip.primary{background:var(--teal);color:#fff;border-color:var(--teal)}
+
+.mock-post{background:#fff;border:1.5px solid #E2E8F0;border-radius:12px;padding:16px;border-left:3px solid var(--gold)}
+.mock-post-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.mock-avatar{width:36px;height:36px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;color:#fff;flex-shrink:0}
+.mock-post-meta strong{display:block;font-size:.8rem;font-weight:700;color:#0F172A}
+.mock-post-meta span{font-size:.72rem;color:#94A3B8}
+.mock-post-text{font-size:.82rem;color:#334155;line-height:1.65}
+.mock-post-stats{display:flex;gap:16px;margin-top:10px;font-size:.74rem;color:#94A3B8}
+.mock-post-stats .hi{color:#10B981;font-weight:700}
+
+/* Founder overlay on mock */
+.mock-founder{position:absolute;top:20px;left:24px;z-index:10;display:flex;align-items:center;gap:10px}
+.mock-founder-av{width:36px;height:36px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:var(--ink)}
+.mock-founder-name{font-size:.82rem;font-weight:700;color:#fff}
+.mock-founder-role{font-size:.72rem;color:rgba(255,255,255,.6)}
+.mock-stats{position:absolute;top:20px;right:24px;z-index:10;text-align:right}
+.mock-stats-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.5)}
+.mock-stats-num{font-size:1.15rem;font-weight:800;color:#fff;letter-spacing:-.02em}
+.mock-stats-change{font-size:.74rem;color:#10B981;font-weight:600}
+
+/* TRUST STRIP */
+.trust-strip{background:var(--ink);padding:18px 5%}
+.trust-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.trust-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.trust-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.35)}
+.trust-val{font-size:.88rem;font-weight:700;color:#fff}
+.trust-sep{color:rgba(255,255,255,.2);font-size:.8rem}
+.trust-link{font-size:.82rem;font-weight:600;color:var(--gold);text-decoration:none;transition:opacity .2s}
+.trust-link:hover{opacity:.8}
+
+/* BUILDING IN PUBLIC */
+.bip{padding:100px 5%;background:var(--white);position:relative}
+.bip-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.bip-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--teal-bg);border:1.5px solid rgba(13,74,69,.15);border-radius:100px;padding:6px 16px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--teal);margin-bottom:20px}
+.bip h2{font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;letter-spacing:-.025em;line-height:1.12;color:var(--ink);margin-bottom:16px}
+.bip h2 em{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--teal)}
+.bip p{font-size:1.02rem;color:var(--ink3);line-height:1.8;margin-bottom:20px}
+.bip-stats{display:flex;gap:32px;margin-bottom:28px}
+.bip-stat-num{font-size:2rem;font-weight:800;color:var(--ink);letter-spacing:-.03em;line-height:1}
+.bip-stat-label{font-size:.78rem;color:var(--ink3);margin-top:4px}
+.bip-btn{display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:.9rem;font-weight:700;transition:all .25s}
+.bip-btn:hover{background:var(--teal-light);transform:translateY(-1px);box-shadow:0 8px 24px rgba(13,74,69,.2)}
+
+.bip-card{background:var(--off);border:1.5px solid var(--border);border-radius:20px;padding:28px;position:relative}
+.bip-card-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:14px}
+.bip-post{font-size:.92rem;color:var(--ink);line-height:1.75;margin-bottom:16px;padding-bottom:16px;border-bottom:1.5px solid var(--border)}
+.bip-post a{color:var(--teal);font-weight:600;text-decoration:none}
+.bip-post-meta{display:flex;align-items:center;justify-content:space-between}
+.bip-post-date{font-size:.76rem;color:var(--ink3)}
+.bip-post-link{font-size:.8rem;color:var(--teal);font-weight:700;text-decoration:none}
+
+/* PROBLEM / SOLUTION */
+.prob{padding:100px 5%;background:var(--off);position:relative;overflow:hidden}
+.prob::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:80px 80px;opacity:.4;pointer-events:none}
+.prob-inner{max-width:1100px;margin:0 auto;position:relative}
+.prob-header{text-align:center;margin-bottom:56px}
+.prob h2{font-size:clamp(2rem,4.5vw,3.4rem);font-weight:800;line-height:1.1;letter-spacing:-.03em;max-width:700px;margin:0 auto 20px}
+.prob-toggle{display:inline-flex;align-items:center;gap:14px;background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:8px 18px;cursor:pointer;user-select:none;transition:all .3s}
+.prob-toggle:hover{border-color:var(--border2)}
+.toggle-label{font-size:.9rem;font-weight:700;color:var(--ink3);transition:all .3s}
+.toggle-label.on{color:var(--teal)}
+.toggle-track{width:48px;height:26px;border-radius:100px;background:#E2E8F0;position:relative;transition:background .3s}
+.toggle-track.on{background:var(--teal)}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .3s;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.toggle-track.on .toggle-thumb{transform:translateX(22px)}
+
+.prob-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;margin-top:48px}
+.prob-text{text-align:left}
+.prob-badge{display:inline-block;font-size:.65rem;font-weight:700;padding:4px 10px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.prob-badge.bad{background:#FEE2E2;color:#DC2626}
+.prob-badge.good{background:#D1FAE5;color:#059669}
+.prob-text h3{font-size:clamp(1.3rem,2.5vw,2rem);font-weight:800;letter-spacing:-.02em;line-height:1.2;color:var(--ink);margin-bottom:14px}
+.prob-text p{font-size:1rem;color:var(--ink3);line-height:1.8}
+
+.prob-card{background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:24px;transition:all .3s}
+.prob-card:hover{box-shadow:0 12px 32px rgba(0,0,0,.08)}
+.prob-post-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.prob-post-av{width:40px;height:40px;border-radius:50%;background:#E2E8F0}
+.prob-post-av.real{background:var(--teal)}
+.prob-post-meta strong{display:block;font-size:.85rem;font-weight:700}
+.prob-post-meta span{font-size:.75rem;color:#94A3B8}
+.prob-post-text{font-size:.88rem;color:#334155;line-height:1.7;margin-bottom:12px}
+.prob-post-stats{display:flex;gap:16px;font-size:.76rem;color:#94A3B8}
+.prob-post-stats .hi{color:#10B981;font-weight:700}
+
+/* FEATURES */
+.feat{padding:100px 5%;background:var(--white)}
+.feat-header{text-align:center;margin-bottom:56px;max-width:600px;margin-left:auto;margin-right:auto}
+.feat-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--teal-bg);border:1.5px solid rgba(13,74,69,.15);border-radius:100px;padding:6px 16px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--teal);margin-bottom:20px}
+.feat h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:800;line-height:1.12;letter-spacing:-.025em;color:var(--ink);margin-bottom:14px}
+.feat-sub{font-size:1rem;color:var(--ink3);line-height:1.7}
+
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-bottom:48px}
+.feat-col{}
+.feat-col-header{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.feat-status{width:8px;height:8px;border-radius:50%}
+.feat-status.live{background:#10B981}
+.feat-status.next{background:var(--gold)}
+.feat-col-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3)}
+.feat-items{display:flex;flex-direction:column;gap:14px}
+.feat-item{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:22px;transition:all .3s}
+.feat-item:hover{border-color:var(--border2);box-shadow:0 8px 24px rgba(0,0,0,.06);transform:translateY(-2px)}
+.feat-item.next{background:var(--off);border-style:dashed;opacity:.85}
+.feat-item-title{font-size:.95rem;font-weight:700;color:var(--ink);margin-bottom:6px}
+.feat-item-desc{font-size:.84rem;color:var(--ink3);line-height:1.65}
+.feat-item-tag{display:inline-block;font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+.feat-item-tag.core{background:var(--teal-bg);color:var(--teal)}
+.feat-item-tag.smart{background:#E0E7FF;color:#4F46E5}
+.feat-item-tag.power{background:#FEF3C7;color:#92400E}
+
+/* PRICING */
+.price{padding:100px 5%;background:var(--off);text-align:center}
+.price-header{margin-bottom:48px}
+.price-note{max-width:520px;margin:20px auto 0;background:var(--gold-bg);border:1.5px solid var(--gold-pale);border-radius:12px;padding:14px 20px}
+.price-note-text{font-size:.85rem;color:var(--ink2);font-weight:500}
+.price-note-text a{color:var(--teal);font-weight:700;text-decoration:none}
+
+.price-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:40px;text-align:left;max-width:1100px;margin-left:auto;margin-right:auto}
+.price-card{background:var(--white);border:1.5px solid var(--border);border-radius:18px;padding:32px 24px;position:relative;transition:all .3s}
+.price-card:hover{box-shadow:0 16px 40px rgba(0,0,0,.1);transform:translateY(-4px)}
+.price-card.featured{border:2px solid var(--teal);background:linear-gradient(135deg,var(--teal) 0%,#0a3d38 100%)}
+.price-card.featured *{color:#fff!important}
+.price-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--ink)!important;font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 14px;border-radius:100px;white-space:nowrap}
+.price-plan{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);margin-bottom:16px}
+.price-num{font-size:2.6rem;font-weight:800;color:var(--ink);letter-spacing:-.04em;line-height:1}
+.price-curr{font-size:1.1rem;font-weight:700;vertical-align:top;margin-right:2px}
+.price-period{font-size:.78rem;color:var(--ink3);margin:4px 0 2px}
+.price-pkr{font-size:.74rem;color:var(--ink3);margin-bottom:22px;font-weight:500}
+.price-divider{height:1px;background:var(--border);margin-bottom:22px}
+.price-feats{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:28px}
+.price-feats li{display:flex;align-items:flex-start;gap:9px;font-size:.84rem;color:var(--ink2);line-height:1.5;font-weight:400}
+.price-check{color:var(--teal);font-size:.85rem;flex-shrink:0;margin-top:2px;font-weight:800}
+.price-btn{display:block;width:100%;padding:13px;border-radius:10px;text-align:center;text-decoration:none;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .25s;border:none;letter-spacing:.01em}
+.price-btn-outline{background:transparent;border:1.5px solid var(--border2);color:var(--teal)}
+.price-btn-outline:hover{background:var(--teal);border-color:var(--teal);color:#fff}
+.price-btn-solid{background:#fff;color:var(--teal)}
+.price-btn-solid:hover{background:var(--gold-pale)}
+
+/* FOUNDER */
+.found{padding:100px 5%;background:var(--white)}
+.found-inner{max-width:800px;margin:0 auto;text-align:center}
+.found-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--gold-bg);border:1.5px solid var(--gold-pale);border-radius:100px;padding:6px 16px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:24px}
+.found h2{font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;letter-spacing:-.025em;line-height:1.12;color:var(--ink);margin-bottom:24px}
+.found h2 em{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--teal)}
+.found-body{text-align:left;margin-bottom:36px}
+.found-body p{font-size:1.05rem;color:var(--ink3);line-height:1.9;margin-bottom:20px}
+.found-body p em{color:var(--ink);font-weight:500}
+.found-profile{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:28px}
+.found-av{width:72px;height:72px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;color:#fff;border:4px solid var(--gold)}
+.found-info{text-align:left}
+.found-name{font-size:1.1rem;font-weight:700;color:var(--ink)}
+.found-role{font-size:.88rem;color:var(--ink3);margin-top:2px}
+.found-link{font-size:.82rem;color:var(--teal);font-weight:700;text-decoration:none;margin-top:4px;display:inline-block}
+.found-link:hover{color:var(--teal-light)}
+.found-btn{display:inline-flex;align-items:center;gap:8px;background:var(--off);border:1.5px solid var(--border);color:var(--ink2);padding:14px 28px;border-radius:10px;text-decoration:none;font-size:.9rem;font-weight:600;transition:all .2s}
+.found-btn:hover{background:var(--teal);border-color:var(--teal);color:#fff}
+
+/* CTA */
+.cta{padding:120px 5%;text-align:center;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--teal-bg),var(--gold-bg))}
+.cta h2{font-size:clamp(2.2rem,5vw,4rem);font-weight:800;letter-spacing:-.03em;color:var(--ink);margin-bottom:18px;line-height:1.1}
+.cta h2 em{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--teal)}
+.cta p{font-size:1.08rem;color:var(--ink3);max-width:460px;margin:0 auto 40px;line-height:1.7}
+.cta-actions{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.cta-fine{margin-top:16px;font-size:.8rem;color:var(--ink3)}
+
+/* FOOTER */
+footer{background:var(--ink);padding:64px 5% 32px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;max-width:1100px;margin-left:auto;margin-right:auto}
+.footer-brand{font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:10px;letter-spacing:-.02em}
+.footer-brand span{color:var(--gold)}
+.footer-tagline{font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(255,255,255,.3);font-size:.95rem;margin-bottom:16px}
+.footer-desc{font-size:.84rem;color:rgba(255,255,255,.35);line-height:1.7;font-weight:300;max-width:280px}
+.footer-link{display:inline-block;margin-top:14px;font-size:.84rem;color:var(--gold);font-weight:600;text-decoration:none}
+.footer-link:hover{opacity:.8}
+.footer-col h5{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-bottom:18px}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:12px}
+.footer-links a{font-size:.86rem;color:rgba(255,255,255,.4);text-decoration:none;transition:color .2s;font-weight:400}
+.footer-links a:hover{color:rgba(255,255,255,.8)}
+.footer-bottom{max-width:1100px;margin:0 auto;border-top:1px solid rgba(255,255,255,.08);padding-top:28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-bottom span,.footer-bottom a{font-size:.78rem;color:rgba(255,255,255,.25);text-decoration:none}
+.footer-bottom a:hover{color:rgba(255,255,255,.5)}
+.footer-bottom-links{display:flex;gap:20px}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.anim{opacity:0;transform:translateY(24px);transition:opacity .8s ease,transform .8s ease}
+.anim.show{opacity:1;transform:translateY(0)}
+
+/* Responsive */
+@media(max-width:900px){
+.bip-grid,.prob-grid,.feat-grid{grid-template-columns:1fr}
+.price-grid{grid-template-columns:1fr 1fr}
+.footer-grid{grid-template-columns:1fr 1fr}
+.mock-body{grid-template-columns:1fr}
+.mock-sidebar{display:none}
+.nav-links{display:none}
+}
+@media(max-width:640px){
+.price-grid,.footer-grid{grid-template-columns:1fr}
+.hero h1{font-size:2.4rem}
+.bip-stats{gap:20px}
+.bip-stat-num{font-size:1.6rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav>
+<a href="#" class="nav-logo">
+<svg width="32" height="32" viewBox="0 0 100 100" fill="none">
+<circle cx="50" cy="46" r="37" stroke="#0D4A45" stroke-width="9"/>
+<path d="M50 18C50 18 36 34 36 48C36 57 42.5 63 50 63C57.5 63 64 57 64 48C64 34 50 18 50 18Z" fill="#0D4A45"/>
+<path d="M50 49C50 49 43 42 43 49C43 53 46.1 56 50 56C53.9 56 57 53 57 49C57 42 50 49 50 49Z" fill="white"/>
+<path d="M29 83Q50 77 71 81" stroke="#C9871F" stroke-width="6" stroke-linecap="round"/>
+</svg>
+<span class="nav-wordmark">Qalam<span>.</span></span>
+</a>
+<ul class="nav-links">
+<li><a href="#features">Product</a></li>
+<li><a href="#pricing">Pricing</a></li>
+<li><a href="#founder">Founder</a></li>
+<li><a href="#bip">Building in Public</a></li>
+</ul>
+<div class="nav-cta">
+<a href="#" class="btn-login">Log In</a>
+<a href="#" class="btn-signup">Join Waitlist</a>
+</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+<div class="hero-ambient" aria-hidden="true"></div>
+
+<div class="hero-badge">
+<span class="hero-badge-label">Building in Public</span>
+<span class="hero-badge-text">Day 47 · 83 waitlist · Lahore, PK · Launching paid June 1</span>
+<span class="hero-badge-arrow">Follow →</span>
+</div>
+
+<h1>LinkedIn content that sounds like<br><span class="accent">you wrote it</span> — not ChatGPT.</h1>
+
+<p class="hero-sub">The AI that learned my voice in 6 minutes, then wrote posts that got me 3 recruiter DMs in 2 weeks.</p>
+
+<div class="hero-chips">
+<span class="hero-chip"><span class="hero-chip-dot" style="background:#10B981"></span>47 voice markers extracted from your writing</span>
+<span class="hero-chip"><span class="hero-chip-dot" style="background:var(--gold)"></span>200+ AI red-flag phrases blocked</span>
+<span class="hero-chip"><span class="hero-chip-dot" style="background:var(--teal)"></span>Built in Lahore on PKR 1,000/month</span>
+</div>
+
+<div class="hero-actions">
+<a href="#waitlist" class="btn-hero-main">Join the Waitlist — Free</a>
+<a href="#founder" class="btn-hero-ghost">Read my story →</a>
+</div>
+
+<p class="hero-note">No credit card. No fake urgency. First 100 get 50% off forever as Founding Members.</p>
+
+<!-- Product Mockup -->
+<div class="hero-visual">
+<div class="hero-visual-bg">
+
+<div class="mock-founder">
+<div class="mock-founder-av">US</div>
+<div>
+<div class="mock-founder-name">Usama's Qalam</div>
+<div class="mock-founder-role">People & Culture Manager · Lahore</div>
+</div>
+</div>
+
+<div class="mock-stats">
+<div class="mock-stats-label">This Week</div>
+<div class="mock-stats-num">12 posts</div>
+<div class="mock-stats-change">8 published · 4 scheduled</div>
+</div>
+
+<div class="product-mock">
+<div class="mock-topbar">
+<div class="mock-dots"><div class="mock-dot"></div><div class="mock-dot"></div><div class="mock-dot"></div></div>
+<div class="mock-url">app.qalam.techspirex.com</div>
+</div>
+<div class="mock-body">
+<div class="mock-sidebar">
+<div class="mock-nav-item active">
+<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+Write Post
+</div>
+<div class="mock-nav-item">
+<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+Calendar
+</div>
+<div class="mock-nav-item">
+<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+Analytics
+</div>
+</div>
+<div class="mock-main">
+<div class="mock-compose">
+<div class="mock-compose-label">Writing in your voice</div>
+<div class="mock-compose-text" id="typewriter">
+I rejected a candidate with a perfect resume this week.<br><br>
+Here's why — and what it taught me about what we're actually hiring for when we say "culture fit."<br><br>
+It's not what you think.<span class="mock-cursor"></span>
+</div>
+<div class="mock-meta">
+<span class="mock-meta-item">✓ Voice match: 94%</span>
+<span class="mock-meta-item">✓ Banned phrases: 0</span>
+<span class="mock-meta-item warn">⚡ Est. reach: High</span>
+</div>
+</div>
+<div class="mock-chips">
+<div class="mock-chip primary">Today's Post</div>
+<div class="mock-chip">Contrarian Take</div>
+<div class="mock-chip">Personal Story</div>
+<div class="mock-chip">5 Comments</div>
+</div>
+<div class="mock-post">
+<div class="mock-post-head">
+<div class="mock-avatar">US</div>
+<div class="mock-post-meta">
+<strong>Usama Shahzaib</strong>
+<span>People & Culture Manager · 2h</span>
+</div>
+</div>
+<div class="mock-post-text">
+I rejected a candidate with a perfect resume this week.<br><br>
+Here's why — and what it taught me about what we're actually hiring for when we say <strong>"culture fit."</strong><br><br>
+It's not what you think.
+</div>
+<div class="mock-post-stats">
+<span class="hi">1,322 likes</span>
+<span class="hi">1,987 comments</span>
+<span class="hi">36,329 impressions</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- TRUST STRIP -->
+<div class="trust-strip">
+<div class="trust-inner">
+<div class="trust-left">
+<span class="trust-label">Building in</span>
+<span class="trust-val">Lahore, Pakistan</span>
+<span class="trust-sep">·</span>
+<span class="trust-val" style="color:var(--gold)">Day 47 of public build</span>
+<span class="trust-sep">·</span>
+<span class="trust-val">83 waitlist members</span>
+</div>
+<a href="https://linkedin.com/in/usamashahzaib" target="_blank" class="trust-link">Follow on LinkedIn →</a>
+</div>
+</div>
+
+<!-- BUILDING IN PUBLIC -->
+<section class="bip anim" id="bip">
+<div class="bip-grid">
+<div>
+<div class="bip-eyebrow">◆ Building in Public</div>
+<h2>We're not a finished product.<br>We're a <em>daily experiment</em>.</h2>
+<p>Every feature you see was built yesterday or is being built tomorrow. I post our revenue, our failures, and our wins on LinkedIn using Qalam itself.</p>
+<p>This is the most honest way to build software. No hiding behind "coming soon" — you see exactly where we are.</p>
+
+<div class="bip-stats">
+<div>
+<div class="bip-stat-num">Day 47</div>
+<div class="bip-stat-label">Of building publicly</div>
+</div>
+<div>
+<div class="bip-stat-num">$0</div>
+<div class="bip-stat-label">MRR (paid launch June 1)</div>
+</div>
+<div>
+<div class="bip-stat-num">83</div>
+<div class="bip-stat-label">Waitlist members</div>
+</div>
+</div>
+
+<a href="/building-in-public" class="bip-btn">Read the founder's journal →</a>
+</div>
+
+<div class="bip-card">
+<div class="bip-card-label">Latest from LinkedIn</div>
+<div class="bip-post">
+"Week 7 of building Qalam: We almost killed the voice fingerprint feature because I thought it was too complex for MVP. Then 3 waitlist members said it was the ONLY reason they signed up. Sometimes the hard thing is the right thing." <a href="#">#BuildingInPublic</a>
+</div>
+<div class="bip-post-meta">
+<span class="bip-post-date">May 4, 2026 · 2,847 views</span>
+<a href="https://linkedin.com/in/usamashahzaib" target="_blank" class="bip-post-link">View on LinkedIn →</a>
+</div>
+</div>
+</div>
+</section>
+
+<!-- PROBLEM / SOLUTION -->
+<section class="prob anim">
+<div class="prob-inner">
+<div class="prob-header">
+<h2>Building a LinkedIn brand<br><span id="toggle-headline">on your own</span></h2>
+<div class="prob-toggle" id="probToggle" onclick="toggleProb()">
+<span class="toggle-label" id="tl-off">The Problem</span>
+<div class="toggle-track" id="tTrack"><div class="toggle-thumb"></div></div>
+<span class="toggle-label on" id="tl-on">with Qalam</span>
+</div>
+</div>
+
+<div class="prob-grid">
+<div class="prob-text" id="prob-text">
+<span class="prob-badge bad" id="prob-badge">✕ The Problem</span>
+<h3 id="prob-title">You post once. Then nothing. The algorithm forgets you exist.</h3>
+<p id="prob-desc">Most professionals know they should be on LinkedIn. Almost none of them are — consistently. Not because they're lazy, but because creating content that sounds like you, every day, is genuinely hard. You stare at a blank screen. You write something generic. You delete it. You tell yourself you'll try tomorrow. Tomorrow never comes.</p>
+</div>
+
+<div class="prob-card" id="prob-card">
+<div class="prob-post-head">
+<div class="prob-post-av" id="prob-av"></div>
+<div class="prob-post-meta">
+<strong id="prob-name">Anonymous Professional</strong>
+<span id="prob-role">HR Manager · 4h</span>
+</div>
+</div>
+<div class="prob-post-text" id="prob-post-text">
+Excited to share that I am thrilled to announce my new role! Grateful for this opportunity to leverage my skills and foster growth in this dynamic landscape. It's a game-changer! #Blessed #HR #Leadership
+</div>
+<div class="prob-post-stats" id="prob-stats">
+<span>2 likes</span>
+<span>0 comments</span>
+<span>3 impressions</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- FEATURES -->
+<section class="feat anim" id="features">
+<div class="feat-header">
+<div class="feat-eyebrow">◆ Product</div>
+<h2>What's live. What's next.<br>No surprises.</h2>
+<p class="feat-sub">Not a generic AI writer. A complete LinkedIn growth system that learns you.</p>
+</div>
+
+<div class="feat-grid">
+<!-- LIVE NOW -->
+<div class="feat-col">
+<div class="feat-col-header">
+<div class="feat-status live"></div>
+<span class="feat-col-title">Live Now — May 2026</span>
+</div>
+<div class="feat-items">
+<div class="feat-item">
+<span class="feat-item-tag core">Core</span>
+<div class="feat-item-title">Voice Fingerprint Engine</div>
+<div class="feat-item-desc">6-minute setup. 47 voice markers extracted from your writing samples. Every post sounds like you, not a chatbot.</div>
+</div>
+<div class="feat-item">
+<span class="feat-item-tag core">Core</span>
+<div class="feat-item-title">AI Chat Agent</div>
+<div class="feat-item-desc">Multi-turn refinement with memory. "Make it shorter." "More contrarian." "Add data." It remembers your past posts.</div>
+</div>
+<div class="feat-item">
+<span class="feat-item-tag smart">Smart</span>
+<div class="feat-item-title">Content Calendar</div>
+<div class="feat-item-desc">Drag, drop, schedule. Auto-fill empty slots based on your frequency setting. Your whole month visible at a glance.</div>
+</div>
+<div class="feat-item">
+<span class="feat-item-tag core">Core</span>
+<div class="feat-item-title">Banned Phrase Filter</div>
+<div class="feat-item-desc">200+ AI red-flag phrases blocked automatically. "Thrilled to share," "paradigm shift," "let that sink in" — never make it through.</div>
+</div>
+</div>
+</div>
+
+<!-- COMING SOON -->
+<div class="feat-col">
+<div class="feat-col-header">
+<div class="feat-status next"></div>
+<span class="feat-col-title">Next 60 Days</span>
+</div>
+<div class="feat-items">
+<div class="feat-item next">
+<span class="feat-item-tag power">Coming June</span>
+<div class="feat-item-title">LinkedIn API Direct Post</div>
+<div class="feat-item-desc">One-click publish to LinkedIn. Waiting on app approval (est. June 15). Currently copy-paste only.</div>
+</div>
+<div class="feat-item next">
+<span class="feat-item-tag power">Coming July</span>
+<div class="feat-item-title">Analytics Dashboard</div>
+<div class="feat-item-desc">Auto-pull impressions via API. Currently self-reported. Chrome extension fallback for Agency tier.</div>
+</div>
+<div class="feat-item next">
+<span class="feat-item-tag power">Coming August</span>
+<div class="feat-item-title">Agency Multi-Profile</div>
+<div class="feat-item-desc">5 client voices, one dashboard. Each with their own fingerprint, library, and calendar. White-label export.</div>
+</div>
+<div class="feat-item next">
+<span class="feat-item-tag power">Coming August</span>
+<div class="feat-item-title">Chrome Extension</div>
+<div class="feat-item-desc">Generate comments while browsing LinkedIn. No tab switching. Comment suggestions on any post in your feed.</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- PRICING -->
+<section class="price anim" id="pricing">
+<div class="price-header">
+<div class="feat-eyebrow">◆ Pricing</div>
+<h2>Built for Pakistan.<br>Priced for the world.</h2>
+<p class="feat-sub">We charge in PKR because that's where we built this. You pay in your currency. Same product.</p>
+
+<div class="price-note">
+<span class="price-note-text">
+<strong>Pre-launch pricing:</strong> These are our planned rates. First 100 users get <strong>50% off forever</strong> as Founding Members. <a href="#waitlist">Join waitlist →</a>
+</span>
+</div>
+</div>
+
+<div class="price-grid">
+<div class="price-card">
+<div class="price-plan">Free</div>
+<div class="price-num"><span class="price-curr">$</span>0</div>
+<div class="price-period">Forever</div>
+<div class="price-pkr">PKR 0 / month</div>
+<div class="price-divider"></div>
+<ul class="price-feats">
+<li><span class="price-check">✓</span> 5 posts per day</li>
+<li><span class="price-check">✓</span> 10 templates</li>
+<li><span class="price-check">✓</span> Voice fingerprint</li>
+<li><span class="price-check">✓</span> Gemini Flash AI</li>
+<li><span class="price-check">✓</span> Basic analytics</li>
+</ul>
+<a href="#" class="price-btn price-btn-outline">Start Free</a>
+</div>
+
+<div class="price-card">
+<div class="price-plan">Starter</div>
+<div class="price-num"><span class="price-curr">$</span>9</div>
+<div class="price-period">per month</div>
+<div class="price-pkr">PKR 999 / month</div>
+<div class="price-divider"></div>
+<ul class="price-feats">
+<li><span class="price-check">✓</span> 20 posts per day</li>
+<li><span class="price-check">✓</span> All 60+ templates</li>
+<li><span class="price-check">✓</span> Content calendar</li>
+<li><span class="price-check">✓</span> Email reminders</li>
+<li><span class="price-check">✓</span> Streak tracking</li>
+</ul>
+<a href="#" class="price-btn price-btn-outline">Start Trial</a>
+</div>
+
+<div class="price-card featured">
+<div class="price-badge">Best for Founders</div>
+<div class="price-plan" style="color:rgba(255,255,255,.6)!important">Pro</div>
+<div class="price-num"><span class="price-curr">$</span>19</div>
+<div class="price-period">per month</div>
+<div class="price-pkr">PKR 2,999 / month</div>
+<div class="price-divider" style="background:rgba(255,255,255,.15)!important"></div>
+<ul class="price-feats">
+<li><span class="price-check" style="color:var(--gold)!important">✓</span> 100 posts per day</li>
+<li><span class="price-check" style="color:var(--gold)!important">✓</span> Claude AI (Haiku/Sonnet)</li>
+<li><span class="price-check" style="color:var(--gold)!important">✓</span> Advanced analytics</li>
+<li><span class="price-check" style="color:var(--gold)!important">✓</span> Carousel builder</li>
+<li><span class="price-check" style="color:var(--gold)!important">✓</span> Priority support</li>
+<li><span class="price-check" style="color:var(--gold)!important">✓</span> CSV export</li>
+</ul>
+<a href="#" class="price-btn price-btn-solid">Start Trial</a>
+</div>
+
+<div class="price-card">
+<div class="price-plan">Agency</div>
+<div class="price-num"><span class="price-curr">$</span>49</div>
+<div class="price-period">per month</div>
+<div class="price-pkr">PKR 8,999 / month</div>
+<div class="price-divider"></div>
+<ul class="price-feats">
+<li><span class="price-check">✓</span> Unlimited posts</li>
+<li><span class="price-check">✓</span> 5 client profiles</li>
+<li><span class="price-check">✓</span> White-label PDF</li>
+<li><span class="price-check">✓</span> Claude Sonnet</li>
+<li><span class="price-check">✓</span> API access</li>
+<li><span class="price-check">✓</span> Slack support (4h)</li>
+</ul>
+<a href="#" class="price-btn price-btn-outline">Contact Us</a>
+</div>
+</div>
+</section>
+
+<!-- FOUNDER STORY -->
+<section class="found anim" id="founder">
+<div class="found-inner">
+<div class="found-eyebrow">◆ Founder Story</div>
+<h2>I was invisible on LinkedIn.<br>So I built the tool I <em>needed</em>.</h2>
+
+<div class="found-body">
+<p>6 years in HR. CPA-HR, CHRMP, TRCP certified. I knew my stuff. But on LinkedIn? I was a ghost. I'd post once a month, get 12 likes, and disappear for 3 weeks.</p>
+<p>I tried ChatGPT. It wrote like a brochure. I tried Jasper. It wrote like a marketer. I needed something that wrote like <em>me</em> — direct, HR-specific, occasionally sarcastic, always honest.</p>
+<p>So I built Qalam in Lahore, on a <strong>PKR 1,000/month budget</strong> (~$3.50 USD), while working full-time as People & Culture Manager. Every feature was built because I needed it first. Every price was set because I know what professionals in Pakistan can actually afford.</p>
+<p>This isn't Silicon Valley software with Pakistani pricing slapped on. This is <em>built here, for here, by someone who lives here</em>.</p>
+</div>
+
+<div class="found-profile">
+<div class="found-av">US</div>
+<div class="found-info">
+<div class="found-name">Usama Shahzaib</div>
+<div class="found-role">Founder, Qalam · People & Culture Manager · Lahore, Pakistan</div>
+<a href="https://linkedin.com/in/usamashahzaib" target="_blank" class="found-link">Follow on LinkedIn →</a>
+</div>
+</div>
+
+<a href="/building-in-public" class="found-btn">Read the full build journey →</a>
+</div>
+</section>
+
+<!-- CTA -->
+<section class="cta anim">
+<h2>Your audience is waiting.<br><em>Start now.</em></h2>
+<p>6 minutes to set up your voice. Join the waitlist today. Be among the first 100 Founding Members — 50% off forever.</p>
+<div class="cta-actions">
+<a href="#waitlist" class="btn-hero-main">Join the Waitlist — Free</a>
+<a href="#pricing" class="btn-hero-ghost">See all plans →</a>
+</div>
+<p class="cta-fine">No credit card required · 30-day money back guarantee · Cancel anytime</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+<div class="footer-grid">
+<div>
+<div class="footer-brand">Qalam<span>.</span></div>
+<div class="footer-tagline">The Pen That Never Runs Dry</div>
+<p class="footer-desc">Built in Lahore, Pakistan 🇵🇰 by a team of one (so far). Every line of code, every word of copy, every pricing decision made here.</p>
+<a href="/building-in-public" class="footer-link">See how we're building this →</a>
+</div>
+<div class="footer-col">
+<h5>Product</h5>
+<ul class="footer-links">
+<li><a href="#features">Features</a></li>
+<li><a href="#pricing">Pricing</a></li>
+<li><a href="#">Templates</a></li>
+<li><a href="#">API Access</a></li>
+</ul>
+</div>
+<div class="footer-col">
+<h5>Company</h5>
+<ul class="footer-links">
+<li><a href="#founder">Founder Story</a></li>
+<li><a href="#bip">Building in Public</a></li>
+<li><a href="#">Blog</a></li>
+<li><a href="#">Contact</a></li>
+</ul>
+</div>
+<div class="footer-col">
+<h5>Legal</h5>
+<ul class="footer-links">
+<li><a href="#">Privacy Policy</a></li>
+<li><a href="#">Terms of Service</a></li>
+<li><a href="#">Refund Policy</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">
+<span>© 2026 Techspirex. All rights reserved.</span>
+<div class="footer-bottom-links">
+<a href="https://linkedin.com/in/usamashahzaib" target="_blank">LinkedIn</a>
+<a href="#">Twitter/X</a>
+<a href="mailto:hello@qalam.techspirex.com">Email</a>
+</div>
+</div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver(entries => {
+entries.forEach(entry => {
+if(entry.isIntersecting) entry.target.classList.add('show');
+});
+}, {threshold: 0.08});
+document.querySelectorAll('.anim').forEach(el => observer.observe(el));
+
+let isOn = false;
+function toggleProb() {
+isOn = !isOn;
+const track = document.getElementById('tTrack');
+const tlOff = document.getElementById('tl-off');
+const tlOn = document.getElementById('tl-on');
+const badge = document.getElementById('prob-badge');
+const title = document.getElementById('prob-title');
+const desc = document.getElementById('prob-desc');
+const av = document.getElementById('prob-av');
+const name = document.getElementById('prob-name');
+const role = document.getElementById('prob-role');
+const text = document.getElementById('prob-post-text');
+const stats = document.getElementById('prob-stats');
+
+if(isOn) {
+track.classList.add('on');
+tlOff.classList.remove('on');
+tlOn.classList.add('on');
+badge.className = 'prob-badge good';
+badge.textContent = '✓ The Solution';
+title.textContent = 'Write once in the morning. Be heard all week.';
+desc.textContent = 'Qalam learns how you write in 6 minutes, then generates posts in your exact voice — your rhythm, your vocabulary, your stories. The result sounds like you on your best day, every day. No more blank screens. No more generic AI slop.';
+av.className = 'prob-post-av real';
+av.innerHTML = 'US';
+name.textContent = 'Usama Shahzaib';
+role.textContent = 'People & Culture Manager · 2h';
+text.innerHTML = 'I rejected a candidate with a perfect resume this week.<br><br>Here\'s why — and what it taught me about what we\'re actually hiring for when we say <strong>"culture fit."</strong><br><br>It\'s not what you think.';
+stats.innerHTML = '<span class="hi">1,322 likes</span><span class="hi">1,987 comments</span><span class="hi">36,329 impressions</span>';
+} else {
+track.classList.remove('on');
+tlOff.classList.add('on');
+tlOn.classList.remove('on');
+badge.className = 'prob-badge bad';
+badge.textContent = '✕ The Problem';
+title.textContent = 'You post once. Then nothing. The algorithm forgets you exist.';
+desc.textContent = 'Most professionals know they should be on LinkedIn. Almost none of them are — consistently. Not because they\'re lazy, but because creating content that sounds like you, every day, is genuinely hard. You stare at a blank screen. You write something generic. You delete it. You tell yourself you\'ll try tomorrow. Tomorrow never comes.';
+av.className = 'prob-post-av';
+av.innerHTML = '';
+name.textContent = 'Anonymous Professional';
+role.textContent = 'HR Manager · 4h';
+text.textContent = 'Excited to share that I am thrilled to announce my new role! Grateful for this opportunity to leverage my skills and foster growth in this dynamic landscape. It\'s a game-changer! #Blessed #HR #Leadership';
+stats.innerHTML = '<span>2 likes</span><span>0 comments</span><span>3 impressions</span>';
+}
+}
+
+const posts = [
+"I rejected a candidate with a perfect resume this week.<br><br>Here's why — and what it taught me about what we're actually hiring for when we say \"culture fit.\"<br><br>It's not what you think.",
+"5 years in HR. The #1 mistake companies make is confusing culture fit with culture add. They're not the same thing.",
+"Your job description is why you're not finding the right hire. Here's how we fixed ours — and cut time-to-hire by 40%.",
+"I was invisible on LinkedIn for 6 years. Then I started posting consistently for 47 days. Here's what changed."
+];
+let pi = 0, ci = 0, del = false;
+const tw = document.getElementById('typewriter');
+
+function type() {
+if(!tw) return;
+const cur = posts[pi];
+if(!del) {
+ci++;
+tw.innerHTML = cur.substring(0, ci) + '<span class="mock-cursor"></span>';
+if(ci >= cur.length) { del = true; setTimeout(type, 2800); return; }
+} else {
+ci = Math.max(0, ci - 4);
+tw.innerHTML = cur.substring(0, ci) + '<span class="mock-cursor"></span>';
+if(ci <= 0) { del = false; pi = (pi + 1) % posts.length; setTimeout(type, 400); return; }
+}
+setTimeout(type, del ? 18 : 32);
+}
+setTimeout(type, 1200);
+</script>
+
+</body>
+</html>
