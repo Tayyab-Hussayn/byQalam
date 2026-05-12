@@ -15,47 +15,65 @@ export default function LoginClient({ nextPath }: { nextPath: string }) {
   const canSubmit = useMemo(() => Boolean(email.trim() && password.trim()), [email, password]);
 
   async function handleSignIn() {
-    if (!canSubmit || loading || !supabase) return;
+    if (!canSubmit || loading) return;
+    if (!supabase) {
+      setMessage("Auth system not configured. Please add Supabase environment variables.");
+      return;
+    }
     setLoading("signin");
     setMessage(null);
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
-      setMessage(error.message);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        setMessage(error.message);
+        setLoading(null);
+        return;
+      }
+      if (data.session?.access_token) {
+        router.push(nextPath);
+        router.refresh();
+        return;
+      }
+      setMessage("Signed in, but no session token was returned.");
       setLoading(null);
-      return;
+    } catch (err) {
+      setMessage("An unexpected error occurred.");
+      setLoading(null);
     }
-    if (data.session?.access_token) {
-      router.push(nextPath);
-      router.refresh();
-      return;
-    }
-    setMessage("Signed in, but no session token was returned.");
-    setLoading(null);
   }
 
   async function handleSignUp() {
-    if (!canSubmit || loading || !supabase) return;
+    if (!canSubmit || loading) return;
+    if (!supabase) {
+      setMessage("Auth system not configured. Please add Supabase environment variables.");
+      return;
+    }
     setLoading("signup");
     setMessage(null);
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    if (error) {
-      setMessage(error.message);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      if (error) {
+        setMessage(error.message);
+        setLoading(null);
+        return;
+      }
+      if (data.session?.access_token) {
+        router.push(nextPath);
+        router.refresh();
+        return;
+      }
+      setMessage("Check your email to confirm the account before continuing.");
       setLoading(null);
-      return;
+    } catch (err) {
+      setMessage("An unexpected error occurred.");
+      setLoading(null);
     }
-    if (data.session?.access_token) {
-      router.push(nextPath);
-      router.refresh();
-      return;
-    }
-    setMessage("Check your email to confirm the account before continuing.");
-    setLoading(null);
   }
 
   return (
