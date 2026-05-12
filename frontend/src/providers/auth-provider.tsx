@@ -22,12 +22,13 @@ async function clearSessionCookie() {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    if (!supabase) return;
+    const client = supabase;
+    if (!client) return;
 
     let active = true;
 
     const loadSession = async () => {
-      const { data } = await supabase.auth.getSession();
+      const { data } = await client.auth.getSession();
       if (!active) return;
       const token = data.session?.access_token ?? null;
       setAccessToken(token);
@@ -42,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = client.auth.onAuthStateChange(async (_event, session) => {
       const token = session?.access_token ?? null;
       setAccessToken(token);
       if (token) {
