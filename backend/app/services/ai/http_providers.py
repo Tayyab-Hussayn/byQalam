@@ -46,87 +46,6 @@ class BaseHttpGenerationProvider:
         return max(1, len(body.split()) // 120)
 
 
-class OpenAIProvider(BaseHttpGenerationProvider):
-    provider_name = "openai"
-
-    async def generate_post(self, context: GenerationContext) -> GeneratedPost:
-        payload = _build_json_prompt(context)
-        async with httpx.AsyncClient(
-            timeout=settings.ai_request_timeout_seconds,
-        ) as client:
-            response = await client.post(
-                "https://api.openai.com/v1/responses",
-                headers={"Authorization": f"Bearer {settings.openai_api_key}"},
-                json={
-                    "model": self.model_name,
-                    "input": payload,
-                    "text": {"format": {"type": "json_object"}},
-                },
-            )
-        data = _ensure_ok(response)
-        parsed = _parse_json_output(data, context)
-        return self._finalize(
-            parsed["body"],
-            parsed["hashtags"],
-            parsed.get("first_comment"),
-        )
-
-
-class AnthropicProvider(BaseHttpGenerationProvider):
-    provider_name = "anthropic"
-
-    async def generate_post(self, context: GenerationContext) -> GeneratedPost:
-        payload = _build_json_prompt(context)
-        async with httpx.AsyncClient(
-            timeout=settings.ai_request_timeout_seconds,
-        ) as client:
-            response = await client.post(
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "x-api-key": settings.anthropic_api_key or "",
-                    "anthropic-version": "2023-06-01",
-                },
-                json={
-                    "model": self.model_name,
-                    "max_tokens": 1200,
-                    "messages": [{"role": "user", "content": payload}],
-                },
-            )
-        data = _ensure_ok(response)
-        parsed = _parse_json_output(data, context)
-        return self._finalize(
-            parsed["body"],
-            parsed["hashtags"],
-            parsed.get("first_comment"),
-        )
-
-
-class GroqProvider(BaseHttpGenerationProvider):
-    provider_name = "groq"
-
-    async def generate_post(self, context: GenerationContext) -> GeneratedPost:
-        return await _openai_compatible_generate(
-            base_url="https://api.groq.com/openai/v1/chat/completions",
-            api_key=settings.groq_api_key or "",
-            context=context,
-            model=self.model_name,
-            provider=self,
-        )
-
-
-class MistralProvider(BaseHttpGenerationProvider):
-    provider_name = "mistral"
-
-    async def generate_post(self, context: GenerationContext) -> GeneratedPost:
-        return await _openai_compatible_generate(
-            base_url="https://api.mistral.ai/v1/chat/completions",
-            api_key=settings.mistral_api_key or "",
-            context=context,
-            model=self.model_name,
-            provider=self,
-        )
-
-
 class OpenCodeProvider(BaseHttpGenerationProvider):
     provider_name = "opencode"
 
@@ -137,32 +56,6 @@ class OpenCodeProvider(BaseHttpGenerationProvider):
             context=context,
             model=self.model_name,
             provider=self,
-        )
-
-
-class GoogleProvider(BaseHttpGenerationProvider):
-    provider_name = "google"
-
-    async def generate_post(self, context: GenerationContext) -> GeneratedPost:
-        payload = _build_json_prompt(context)
-        async with httpx.AsyncClient(
-            timeout=settings.ai_request_timeout_seconds,
-        ) as client:
-            response = await client.post(
-                f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent",
-                params={"key": settings.google_ai_api_key or ""},
-                json={
-                    "contents": [
-                        {"parts": [{"text": payload}]},
-                    ]
-                },
-            )
-        data = _ensure_ok(response)
-        parsed = _parse_json_output(data, context)
-        return self._finalize(
-            parsed["body"],
-            parsed["hashtags"],
-            parsed.get("first_comment"),
         )
 
 
@@ -200,7 +93,7 @@ def _build_json_prompt(context: GenerationContext) -> str:
     return (
         "Write a polished LinkedIn post as JSON only with keys body, hashtags, "
         "first_comment. Use the context below.\n"
-        f"{json.dumps(context.__dict__, ensure_ascii=True)}"
+        f"{json.dumps(context.__dict__, ensure_ascii=False)}"
     )
 
 

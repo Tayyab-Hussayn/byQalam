@@ -249,7 +249,7 @@ export function WriterView({
         </div>
       </div>
       <div className="output-panel">
-        <div className="panel-header"><span className="panel-title">Generated Post</span><span style={{ fontSize: 10, color: "var(--text3)", fontFamily: "var(--font-jetbrains-mono),monospace" }}>claude-sonnet-4-6</span></div>
+        <div className="panel-header"><span className="panel-title">Generated Post</span><span style={{ fontSize: 10, color: "var(--text3)", fontFamily: "var(--font-jetbrains-mono),monospace" }}>minimax-m2.5-free</span></div>
         <div className="output-content">
           {!generated && !isGenerating ? <OutputPlaceholder /> : <div className="generated-post">{generated || <span className="typing-cursor" />}</div>}
         </div>

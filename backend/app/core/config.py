@@ -6,7 +6,7 @@ from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 AppEnv = Literal["local", "test", "staging", "production"]
-AiProvider = Literal["mock", "openai", "anthropic", "google", "groq", "mistral", "opencode"]
+AiProvider = Literal["mock", "opencode"]
 
 
 class Settings(BaseSettings):
@@ -49,15 +49,10 @@ class Settings(BaseSettings):
     token_encryption_key_id: str = "local"
 
     ai_default_provider: AiProvider = "opencode"
-    ai_default_model: str = "claude-sonnet-4-6"
+    ai_default_model: str = "minimax-m2.5-free"
     ai_fallback_provider: AiProvider | None = None
     ai_request_timeout_seconds: int = 60
     ai_max_retries: int = 2
-    openai_api_key: str | None = None
-    anthropic_api_key: str | None = None
-    google_ai_api_key: str | None = None
-    groq_api_key: str | None = None
-    mistral_api_key: str | None = None
     opencode_api_key: str | None = "sk-92xd8eMYxxiHh1RWaKjJtD9USnbBB3st7bmRRCli8lAWPtL9fViJmVTHMT7KcREG"
 
     linkedin_client_id: str | None = None
@@ -125,11 +120,6 @@ class Settings(BaseSettings):
         "jwt_issuer",
         "cookie_domain",
         "ai_fallback_provider",
-        "openai_api_key",
-        "anthropic_api_key",
-        "google_ai_api_key",
-        "groq_api_key",
-        "mistral_api_key",
         "opencode_api_key",
         "linkedin_client_id",
         "linkedin_client_secret",
@@ -203,11 +193,6 @@ class Settings(BaseSettings):
     def provider_api_key(self) -> str | None:
         return {
             "mock": "mock",
-            "openai": self.openai_api_key,
-            "anthropic": self.anthropic_api_key,
-            "google": self.google_ai_api_key,
-            "groq": self.groq_api_key,
-            "mistral": self.mistral_api_key,
             "opencode": self.opencode_api_key,
         }[self.ai_default_provider]
 
