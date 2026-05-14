@@ -6,7 +6,7 @@ from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 AppEnv = Literal["local", "test", "staging", "production"]
-AiProvider = Literal["mock", "openai", "anthropic", "google", "groq", "mistral"]
+AiProvider = Literal["mock", "openai", "anthropic", "google", "groq", "mistral", "opencode"]
 
 
 class Settings(BaseSettings):
@@ -48,8 +48,8 @@ class Settings(BaseSettings):
     encryption_key: str = "replace-with-fernet-key"
     token_encryption_key_id: str = "local"
 
-    ai_default_provider: AiProvider = "mock"
-    ai_default_model: str = "mock-qalam-v1"
+    ai_default_provider: AiProvider = "opencode"
+    ai_default_model: str = "claude-sonnet-4-6"
     ai_fallback_provider: AiProvider | None = None
     ai_request_timeout_seconds: int = 60
     ai_max_retries: int = 2
@@ -58,6 +58,7 @@ class Settings(BaseSettings):
     google_ai_api_key: str | None = None
     groq_api_key: str | None = None
     mistral_api_key: str | None = None
+    opencode_api_key: str | None = "sk-92xd8eMYxxiHh1RWaKjJtD9USnbBB3st7bmRRCli8lAWPtL9fViJmVTHMT7KcREG"
 
     linkedin_client_id: str | None = None
     linkedin_client_secret: str | None = None
@@ -129,6 +130,7 @@ class Settings(BaseSettings):
         "google_ai_api_key",
         "groq_api_key",
         "mistral_api_key",
+        "opencode_api_key",
         "linkedin_client_id",
         "linkedin_client_secret",
         "stripe_secret_key",
@@ -206,6 +208,7 @@ class Settings(BaseSettings):
             "google": self.google_ai_api_key,
             "groq": self.groq_api_key,
             "mistral": self.mistral_api_key,
+            "opencode": self.opencode_api_key,
         }[self.ai_default_provider]
 
 

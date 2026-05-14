@@ -5,6 +5,7 @@ from app.services.ai.http_providers import (
     GroqProvider,
     MistralProvider,
     OpenAIProvider,
+    OpenCodeProvider,
 )
 from app.services.ai.mock_provider import MockContentGenerationProvider
 from app.services.ai.providers import ContentGenerationProvider
@@ -23,6 +24,8 @@ def get_generation_provider() -> ContentGenerationProvider:
         return GroqProvider("groq")
     if settings.ai_default_provider == "mistral":
         return MistralProvider("mistral")
+    if settings.ai_default_provider == "opencode":
+        return OpenCodeProvider("opencode")
 
     raise NotImplementedError(
         f"AI provider '{settings.ai_default_provider}' is not implemented yet."

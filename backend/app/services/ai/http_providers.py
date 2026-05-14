@@ -127,6 +127,19 @@ class MistralProvider(BaseHttpGenerationProvider):
         )
 
 
+class OpenCodeProvider(BaseHttpGenerationProvider):
+    provider_name = "opencode"
+
+    async def generate_post(self, context: GenerationContext) -> GeneratedPost:
+        return await _openai_compatible_generate(
+            base_url="https://opencode.ai/zen/v1/chat/completions",
+            api_key=settings.opencode_api_key or "",
+            context=context,
+            model=self.model_name,
+            provider=self,
+        )
+
+
 class GoogleProvider(BaseHttpGenerationProvider):
     provider_name = "google"
 
