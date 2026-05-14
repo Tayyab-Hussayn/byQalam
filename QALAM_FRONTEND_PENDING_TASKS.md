@@ -1,6 +1,6 @@
 # Qalam Frontend Pending Tasks
 
-Last updated: 2026-05-10
+Last updated: 2026-05-14
 
 This file tracks the remaining frontend work for the Qalam SaaS after the
 marketing page, dashboard UI conversion, route guard, and initial backend service
@@ -12,10 +12,10 @@ Master index:
 
 Completed frontend foundation:
 
-- Next.js App Router frontend in `frontend-wt/frontend`.
+- Next.js App Router frontend in `frontend/`.
 - Marketing page converted from the source HTML design.
 - Dashboard UI converted from `qalam_world_class_mvp.html`.
-- Temporary login route and protected dashboard route.
+- Protected dashboard route.
 - Shared API wrapper in `src/lib/api/client.ts`.
 - Backend-aware dashboard generation service in `src/services/dashboard.ts`.
 - Initial service wrappers for preferences, LinkedIn, and billing APIs.
@@ -26,8 +26,11 @@ Completed frontend foundation:
 
 - Supabase session bootstrap on the client is in place. Done.
 - Frontend API calls now attach the active Supabase bearer token. Done.
-- Auth-aware `/login` and `/dashboard` route behavior is in place through the shared cookie bridge. Done.
+- Auth-aware `/login`, `/register`, and `/dashboard` route behavior is in place through middleware. Done.
 - Surface current user and workspace context in the UI. Partially done through `/me` bootstrap.
+- **2026-05-14**: Split login/register into separate routes with Google OAuth buttons
+- **2026-05-14**: Added forgot password flow (/forgot-password, /reset-password)
+- **2026-05-14**: Added logout button in Settings tab
 
 ## 2. Dashboard Data Integration
 
@@ -65,5 +68,6 @@ Completed frontend foundation:
 
 ## Immediate Next Task
 
-The frontend hardening slice is complete. The remaining frontend work is low
-priority cleanup and optional state-management refinement only.
+- Enable Google OAuth in Supabase with client ID from Google Console
+- Deploy backend to production (Render)
+- Connect frontend to production backend

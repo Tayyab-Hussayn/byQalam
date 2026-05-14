@@ -1,6 +1,6 @@
 # Qalam Pending Tasks
 
-Last updated: 2026-05-12
+Last updated: 2026-05-14
 
 This is the master list of remaining work for Qalam. It consolidates the
 frontend and backend trackers so the current build state is easy to read in one
@@ -18,8 +18,26 @@ Detailed trackers:
 - Supabase JWT authentication integrated
 - Session sync endpoint stores JWT in httpOnly cookie
 - Auth middleware redirects authenticated users to dashboard
-- Auto-redirect logged-in users from `/` and `/login` to dashboard
+- Auto-redirect logged-in users from `/`, `/login`, `/register` to dashboard
 - Proper null handling for Supabase client across all components
+
+### Login/Register UI Split ✓ (2026-05-14)
+- Separate `/login` and `/register` routes with distinct UIs
+- Google OAuth button on both pages (pending provider enablement)
+- Visual divider with "or" between OAuth and email/password
+- Login: "Forgot password?" link, bottom "Sign up" link
+- Register: Password hint "Use 8 or more characters", bottom "Log in" link
+
+### Forgot Password Flow ✓ (2026-05-14)
+- `/forgot-password` - Request password reset email
+- `/reset-password` - Set new password after clicking email link
+- Supabase `resetPasswordForEmail()` with redirect URL
+- Middleware updated to allow access to auth pages when not authenticated
+
+### Logout Button ✓ (2026-05-14)
+- Sign out button added in Settings tab
+- Clears Supabase session + httpOnly cookie
+- Redirects to `/login`
 
 ### Repository Setup ✓
 - Single `main` branch (removed old `backend` and `frontend` branches)
@@ -32,9 +50,6 @@ Detailed trackers:
 - Complete LinkedIn integration UI
 - Complete billing UI
 - Add email verification handling
-
-### Completed This Session
-- Forgot password flow implemented (/forgot-password, /reset-password)
 
 ## Backend Remaining Tasks
 
