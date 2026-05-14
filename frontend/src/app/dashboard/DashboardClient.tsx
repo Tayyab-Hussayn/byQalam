@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ApiError } from "@/lib/api/client";
+import { supabase } from "@/lib/auth/supabase";
 import { DASHBOARD_METRICS, GENERATED_HASHTAGS, RECENT_POSTS } from "@/features/dashboard/data/dashboardMock";
 import {
   generateWorkspacePost,
@@ -135,6 +137,7 @@ function buildVoiceDraft(profile: VoiceProfile | null): VoiceDraft {
 }
 
 export default function DashboardClient() {
+  const router = useRouter();
   const [view, setView] = useState<DashboardView>("writer");
   const [onboardingOpen, setOnboardingOpen] = useState(true);
   const [step, setStep] = useState(0);
@@ -194,6 +197,22 @@ export default function DashboardClient() {
     setNotification({ icon, message });
     notificationTimer.current = window.setTimeout(() => setNotification(null), 3500);
   }, []);
+
+  const handleLogout = useCallback(async () => {
+    try {
+      // Sign out from Supabase
+      if (supabase) {
+        await supabase.auth.signOut();
+      }
+      // Clear session cookie
+      await fetch("/api/auth/session-clear", { method: "POST" });
+      // Redirect to login
+      router.push("/login");
+      router.refresh();
+    } catch (error) {
+      showNotif("❌", "Failed to sign out. Please try again.");
+    }
+  }, [router, showNotif]);
 
   const reloadDashboardSnapshot = useCallback(async (signal?: AbortSignal) => {
     const context = await readDashboardSnapshot(signal);
@@ -891,6 +910,7 @@ export default function DashboardClient() {
                   onSavePreferences={saveSettingsPreferences}
                   onSaveVoiceProfile={saveSettingsVoiceProfile}
                   onSaveWritingSample={saveSettingsWritingSample}
+                  onLogout={handleLogout}
                 />
               </div>
             ) : null}

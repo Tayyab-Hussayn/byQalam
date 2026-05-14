@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
   const isAuthenticated = !!session;
 
   // If user is authenticated and tries to access public pages, redirect to dashboard
-  if (isAuthenticated && (pathname === "/" || pathname === "/login")) {
+  if (isAuthenticated && (pathname === "/" || pathname === "/login" || pathname === "/register")) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -24,5 +24,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/login", "/dashboard/:path*"],
+  matcher: ["/", "/login", "/register", "/dashboard/:path*"],
 };

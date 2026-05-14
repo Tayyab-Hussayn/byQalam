@@ -647,6 +647,7 @@ export function SettingsView({
   onSavePreferences,
   onSaveVoiceProfile,
   onSaveWritingSample,
+  onLogout,
 }: {
   preferences: ContentPreference | null;
   voiceProfile: VoiceProfile | null;
@@ -663,6 +664,7 @@ export function SettingsView({
   onSavePreferences: () => void;
   onSaveVoiceProfile: (payload: VoiceProfileInput) => void;
   onSaveWritingSample: () => void;
+  onLogout: () => void;
 }) {
   const selectedNiche = nicheProfiles.find((item) => item.slug === settingsDraft.nicheSlug) ?? nicheProfiles[0] ?? null;
 
@@ -872,6 +874,27 @@ export function SettingsView({
         </div>
       </div>
       {isLoading ? <div style={{ fontSize: 12, color: "var(--text3)" }}>Loading settings...</div> : null}
+
+      <div className="voice-card" style={{ borderColor: "rgba(220, 53, 69, 0.3)" }}>
+        <div className="section-title serif" style={{ color: "var(--text2)" }}>Account</div>
+        <p style={{ fontSize: 12, color: "var(--text3)", marginBottom: 14, lineHeight: 1.6 }}>
+          Sign out of your Qalam account on this device.
+        </p>
+        <button
+          className="out-btn"
+          type="button"
+          style={{
+            background: "rgba(220, 53, 69, 0.1)",
+            borderColor: "rgba(220, 53, 69, 0.4)",
+            color: "#fa5555",
+            width: "100%",
+            justifyContent: "center",
+          }}
+          onClick={onLogout}
+        >
+          Sign out of account
+        </button>
+      </div>
     </div>
   );
 }

@@ -31,8 +31,10 @@ Detailed trackers:
 - Connect backend API for full dashboard data
 - Complete LinkedIn integration UI
 - Complete billing UI
-- Add forgot password flow
 - Add email verification handling
+
+### Completed This Session
+- Forgot password flow implemented (/forgot-password, /reset-password)
 
 ## Backend Remaining Tasks
 

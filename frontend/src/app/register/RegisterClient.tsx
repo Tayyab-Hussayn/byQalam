@@ -16,25 +16,29 @@ function GoogleIcon() {
   );
 }
 
-export default function LoginClient({ nextPath }: { nextPath: string }) {
+export default function RegisterClient({ nextPath }: { nextPath: string }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState<"signin" | "google" | null>(null);
+  const [loading, setLoading] = useState<"signup" | "google" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   const canSubmit = useMemo(() => Boolean(email.trim() && password.trim()), [email, password]);
 
-  async function handleSignIn() {
+  async function handleSignUp() {
     if (!canSubmit || loading) return;
     if (!supabase) {
       setMessage("Auth system not configured. Please add Supabase environment variables.");
       return;
     }
-    setLoading("signin");
+    if (password.length < 8) {
+      setMessage("Password must be at least 8 characters.");
+      return;
+    }
+    setLoading("signup");
     setMessage(null);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
@@ -48,7 +52,7 @@ export default function LoginClient({ nextPath }: { nextPath: string }) {
         router.refresh();
         return;
       }
-      setMessage("Signed in, but no session token was returned.");
+      setMessage("Check your email to confirm your account before continuing.");
       setLoading(null);
     } catch (err) {
       setMessage("An unexpected error occurred.");
@@ -87,9 +91,9 @@ export default function LoginClient({ nextPath }: { nextPath: string }) {
         <Link href="/" className="mb-8 inline-block text-sm font-semibold text-[#C9922A]">
           Qalam.
         </Link>
-        <h1 className="font-serif text-3xl text-[#F0EDE6]">Log in to Qalam</h1>
+        <h1 className="font-serif text-3xl text-[#F0EDE6]">Create your account</h1>
         <p className="mt-3 text-sm leading-6 text-[#B8B4AA]">
-          Use your Supabase account to access the dashboard.
+          Get started with Qalam to generate LinkedIn content in your voice.
         </p>
         <div className="mt-8 space-y-5">
           <button
@@ -99,7 +103,7 @@ export default function LoginClient({ nextPath }: { nextPath: string }) {
             onClick={handleGoogleSignIn}
           >
             <GoogleIcon />
-            {loading === "google" ? "Signing in..." : "Continue with Google"}
+            {loading === "google" ? "Signing up..." : "Continue with Google"}
           </button>
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 bg-[rgba(201,146,42,0.15)]" />
@@ -125,25 +129,21 @@ export default function LoginClient({ nextPath }: { nextPath: string }) {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
             />
+            <span className="mt-1 block text-xs text-[#7A7670]">Use 8 or more characters</span>
           </label>
           {message ? <p className="text-sm leading-6 text-[#E8B84B]">{message}</p> : null}
-          <div className="flex items-center justify-end">
-            <Link href="/forgot-password" className="text-sm text-[#C9922A] hover:underline">
-              Forgot password?
-            </Link>
-          </div>
           <button
             className="w-full rounded-lg bg-[#C9922A] px-4 py-3 text-sm font-semibold text-[#060D0A] transition hover:bg-[#E8B84B] disabled:cursor-not-allowed disabled:opacity-70"
             type="button"
             disabled={!canSubmit || loading !== null}
-            onClick={handleSignIn}
+            onClick={handleSignUp}
           >
-            {loading === "signin" ? "Signing in..." : "Log in"}
+            {loading === "signup" ? "Creating account..." : "Create account"}
           </button>
           <p className="text-center text-sm text-[#B8B4AA]">
-            Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-[#C9922A] hover:underline">
-              Sign up
+            Already have an account?{" "}
+            <Link href="/login" className="text-[#C9922A] hover:underline">
+              Log in
             </Link>
           </p>
         </div>
