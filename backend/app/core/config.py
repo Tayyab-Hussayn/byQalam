@@ -50,6 +50,7 @@ class Settings(BaseSettings):
 
     ai_default_provider: AiProvider = "opencode"
     ai_default_model: str = "minimax-m2.5-free"
+    ai_opencode_base_url: str = "https://opencode.ai/zen/v1"
     ai_fallback_provider: AiProvider | None = None
     ai_request_timeout_seconds: int = 60
     ai_max_retries: int = 2

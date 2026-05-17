@@ -51,7 +51,7 @@ class OpenCodeProvider(BaseHttpGenerationProvider):
 
     async def generate_post(self, context: GenerationContext) -> GeneratedPost:
         return await _openai_compatible_generate(
-            base_url="https://opencode.ai/zen/v1/chat/completions",
+            base_url=f"{settings.ai_opencode_base_url}/chat/completions",
             api_key=settings.opencode_api_key or "",
             context=context,
             model=self.model_name,
